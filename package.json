@@ -1,0 +1,31 @@
+{
+  "name": "distributetracker",
+  "version": "0.1.0",
+  "description": "A simple web app designed to track your sales",
+  "homepage": "https://github.com/PuneetGopinath/DistributeTracker#readme",
+  "bugs": {
+    "url": "https://github.com/PuneetGopinath/DistributeTracker/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PuneetGopinath/DistributeTracker.git"
+  },
+  "license": "MIT",
+  "author": "PuneetGopinath",
+  "type": "module",
+  "main": "src/server/index.js",
+  "scripts": {
+    "dev": "npx nodemon src/server/index.js --watch src/server -e js,jsx,json,css",
+    "build": "vite build",
+    "dev-client": "vite"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "react": "^19.2.0",
+    "react-router": "^7.9.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "vite": "^7.1.9"
+  }
+}
