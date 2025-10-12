@@ -1,0 +1,24 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+.footer {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    text-align: center;
+    background-color: #f1f1f1;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+}
+
+.footer > p {
+    margin: 0.2rem 0;
+    font-size: 0.9rem;
+    color: #555;
+}
