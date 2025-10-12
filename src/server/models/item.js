@@ -1,3 +1,10 @@
+/**
+ * DistributeTracker
+ * © 2025 Puneet Gopinath. All rights reserved.
+ * Filename: src/server/models/item.js
+ * License: MIT (see LICENSE)
+ */
+
 import mongoose from "mongoose";
 
 const itemSchema = new mongoose.Schema({
