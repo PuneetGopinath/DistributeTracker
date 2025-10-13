@@ -2,7 +2,12 @@ export default function Home() {
     const features = [
         "Intuitive interface for easy data entry",
         "Real-time collaboration for outreach teams",
-        "Comprehensive reporting and analytics (coming soon)"        
+        "Secure user authentication with Google OAuth",
+        "Offline mode for uninterrupted data entry",
+        "Open-source and community-driven development",
+        "Comprehensive reporting and analytics (coming soon)",
+        "Data export options (CSV) for record-keeping (coming soon)",
+        "Analytics dashboard for insights (coming soon)"
     ];
     return (
         <>
