@@ -5,12 +5,12 @@
  * License: MIT (see LICENSE)
  */
 
-import express from "express";
+import { Router } from "express";
 
 import asyncHandler from "../utils/asyncHandler";
 import { getItems, createItem } from "../controllers/itemC";
 
-const router = express.Router();
+const router = Router();
 
 router.get("/", asyncHandler(getItems));
 router.post("/", asyncHandler(createItem));
