@@ -1,6 +1,13 @@
+/**
+ * DistributeTracker
+ * © 2025 Puneet Gopinath. All rights reserved.
+ * Filename: src/server/config/db.js
+ * License: MIT (see LICENSE)
+ */
+
 import mongoose from "mongoose";
 
-export const connectToDB = async () => {
+const connectToDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI);
         console.log("[INFO] Connected to MongoDB");
@@ -11,3 +18,5 @@ export const connectToDB = async () => {
         process.exit(1);
     }
 };
+
+export default connectToDB;
