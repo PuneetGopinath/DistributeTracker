@@ -1,3 +1,10 @@
+/**
+ * DistributeTracker
+ * © 2025 Puneet Gopinath. All rights reserved.
+ * Filename: src/client/components/Home.jsx
+ * License: MIT (see LICENSE)
+ */
+
 export default function Home() {
     const features = [
         "Intuitive interface for easy data entry",
