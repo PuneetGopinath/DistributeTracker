@@ -7,9 +7,12 @@
 
 import Item from "../models/item";
 
+const unauthorizedMsg = "You are not authorized. Please sign in/sign up to continue."
+
 export const getItems = async (req, res) => {
+    // Returns items created by the signed-in user
     if (!req.user || !req.user.id) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: unauthorizedMsg });
     }
 
     const userId = req.user.id;
@@ -19,7 +22,7 @@ export const getItems = async (req, res) => {
 
 export const createItem = async (req, res) => {
     if (!req.user || !req.user.id) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return res.status(401).json({ message: unauthorizedMsg });
     }
 
     const createdBy = req.user.id;
