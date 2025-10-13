@@ -19,8 +19,7 @@ const itemSchema = new mongoose.Schema({
     price: { // Stores default price for this item. This can be overridden in transactions.
         type: Number,
         required: true,
-        min: 0,
-        default: 0
+        min: 0
     },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
