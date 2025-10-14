@@ -7,8 +7,8 @@
 
 import { Router } from "express";
 
-import asyncHandler from "../utils/asyncHandler";
-import { getItems, createItem } from "../controllers/itemC";
+import asyncHandler from "../utils/asyncHandler.js";
+import { getItems, createItem } from "../controllers/itemC.js";
 
 const router = Router();
 

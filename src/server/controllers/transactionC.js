@@ -5,8 +5,8 @@
  * License: MIT (see LICENSE)
  */
 
-import Item from "../models/item";
-import Transaction from "../models/transaction";
+import Item from "../models/item.js";
+import Transaction from "../models/transaction.js";
 
 const unauthorizedMsg = "You are not authorized. Please sign in/sign up to continue.";
 

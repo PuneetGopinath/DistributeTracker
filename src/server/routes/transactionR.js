@@ -7,8 +7,8 @@
 
 import { Router } from "express";
 
-import asyncHandler from "../utils/asyncHandler";
-import { createTransaction, getTransaction } from "../controllers/transactionC";
+import asyncHandler from "../utils/asyncHandler.js";
+import { createTransaction, getTransaction } from "../controllers/transactionC.js";
 
 const router = Router();
 
