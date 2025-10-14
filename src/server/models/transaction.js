@@ -24,7 +24,7 @@ const transactionSchema = new mongoose.Schema({
                 message: props => `${props.value} must be an integer`
             }
         },
-        price: {
+        price: { // Price per unit item
             type: Number,
             required: true,
             min: 0
