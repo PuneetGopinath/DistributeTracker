@@ -2,6 +2,8 @@
 
 This is a simple and efficient web app designed to help ISKCON devotees and outreach teams seamlessly record and organize counts of distributed items during their services.
 
+I'm personally a follower of ISKCON (International Society for Krsna Consciousness) and I've seen how some people record their distribution count in their hands or sometimes notepads.
+
 ## Features
 
 - Intutive interface for easy data entry
