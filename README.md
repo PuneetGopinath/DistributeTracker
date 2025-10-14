@@ -7,9 +7,9 @@ This is a simple and efficient web app designed to help ISKCON devotees and outr
 - Intutive interface for easy data entry
 - Realtime collaboration for outreach teams
 - Secure user authentication with Google OAuth
-- Offline mode for uninterrupted data entry
 - Open-source and community-driven development
 
+- Offline mode for uninterrupted data entry (coming soon)
 - Comprehensive reporting and analysis (coming soon)
 - Data export options (CSV) for record-keeping (coming soon)
 - Analytics dashboard for insights (coming soon)
