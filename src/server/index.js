@@ -10,9 +10,10 @@ import { config } from "dotenv";
 import express from "express";
 import path from "path";
 
-import connectToDB from "./config/db";
+import connectToDB from "./config/db.js";
 
-import itemRouter from "./routes/itemR";
+import itemRouter from "./routes/itemR.js";
+import transactionRouter from "./routes/transactionR.js";
 
 config();
 
@@ -22,6 +23,7 @@ const PORT = process.env.PORT ?? 3500;
 app.use(express.json());
 
 app.use("/api/items", itemRouter);
+app.use("/api/transactions", transactionRouter);
 
 app.use((err, req, res, next) => {
     console.error("[ERROR] Express Error Handler:", err.message);
