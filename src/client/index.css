@@ -14,6 +14,29 @@ body {
     margin: 0;
 }
 
+.header {
+    display: flex;
+    position: sticky;
+    align-items: center;
+    background-color: #f8f8f8;
+    padding: 0.5rem 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    top: 0;
+    z-index: 10;
+    font-size: 1.5rem;
+}
+
+.header-left {
+    margin-left: 1rem;
+}
+
+.header-right {
+    display: flex;
+    gap: 1.25rem;
+    margin-left: auto;
+    margin-right: 0.5rem;
+}
+
 main {
     padding: 1rem;
     min-height: 100vh;
@@ -22,6 +45,12 @@ main {
     font-family: Arial, sans-serif;
     color: #333;
     line-height: 1.6;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #0077ff;
+    color: #444;
 }
 
 .cards-container {

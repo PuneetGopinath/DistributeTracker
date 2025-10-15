@@ -5,11 +5,20 @@
  * License: MIT (see LICENSE)
  */
 
-import { Outlet } from "react-router";
+import { Link, Outlet } from "react-router";
 
 export default function Layout() {
     return (
         <>
+            <header className="header">
+                <div className="header-left">
+                    <Link to="/" className="nav-link">DistributeTracker</Link>
+                </div>
+                <div className="header-right">
+                    <Link to="/dashboard/log-transaction" className="nav-link">Log Transaction</Link>
+                    <Link to="/dashboard/view-transactions" className="nav-link">View Transactions</Link>
+                </div>
+            </header>
             <main>
                 <Outlet />
             </main>
