@@ -15,7 +15,7 @@ export const createTransaction = async (req, res) => {
         return res.status(401).json({ message: unauthorizedMsg });
     }
 
-    const items = req.body;
+    const { items } = req.body;
     if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ message: "Items are not attached in the request body. It should be an array of objects."})
     }
@@ -52,7 +52,7 @@ export const getTransaction = async (req, res) => {
     const transaction = await Transaction.findById(id)
         .populate("items.itemId", "name description price")
         .lean();
-    res.json(transaction);
+    res.json(transaction.items);
 };
 
 export const getAllTransactions = async (req, res) => {
@@ -60,6 +60,9 @@ export const getAllTransactions = async (req, res) => {
         return res.status(401).json({ message: unauthorizedMsg });
     }
 
-    const transactions = await Transaction.find().lean();
-    res.json(transactions);
+    const transactions = await Transaction.find()
+        .populate("items.itemId")
+        .lean();
+    const items = transactions.items.map(t => ({...t, "item": t.itemId, "itemId": undefined }));
+    res.json(items);
 };
