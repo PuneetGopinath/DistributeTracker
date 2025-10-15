@@ -39,7 +39,26 @@ export default function LogTransaction() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData(e.target);
+        const transactionData = entries.map(entry => ({
+            ...entry,
+            quantity: parseInt(entry.quantity, 10),
+            price: parseFloat(entry.price)
+        }));
+
+        try {
+            const res = await axios.post("/api/transactions", { items: transactionData });
+
+            if (res.status === 201) {
+                alert("Transaction Logged successfully!");
+                console.log("[INFO] Transaction logged");
+            } else {
+                console.error("[ERROR] Transaction log failed", res.data);
+                console.error(res);
+            }
+        } catch (err) {
+            console.error("[ERROR] While logging the transaction:", err.message);
+            console.error(err);
+        }
     };
 
     return (
