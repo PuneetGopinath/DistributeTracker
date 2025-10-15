@@ -8,11 +8,12 @@
 import { Router } from "express";
 
 import asyncHandler from "../utils/asyncHandler.js";
-import { createTransaction, getTransaction } from "../controllers/transactionC.js";
+import { createTransaction, getAllTransactions, getTransaction } from "../controllers/transactionC.js";
 
 const router = Router();
 
 router.post("/", asyncHandler(createTransaction));
+router.get("/", asyncHandler(getAllTransactions));
 router.get("/:id", asyncHandler(getTransaction));
 
 export default router;

@@ -52,6 +52,14 @@ export const getTransaction = async (req, res) => {
     const transaction = await Transaction.findById(id)
         .populate("items.itemId", "name description price")
         .lean();
-    
     res.json(transaction);
+};
+
+export const getAllTransactions = async (req, res) => {
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ message: unauthorizedMsg });
+    }
+
+    const transactions = await Transaction.find().lean();
+    res.json(transactions);
 };
