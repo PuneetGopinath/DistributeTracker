@@ -40,7 +40,7 @@ export default function ListItems() {
             ) : (
                 <ul>
                     {items.map(item => (
-                        <li key={item._id}>{item.name} - {item.category} <button disabled>Edit</button></li>
+                        <li key={item._id}>{item.name} - {item.category} <button className="edit" title="Coming Soon" disabled>Edit</button></li>
                     ))}
                 </ul>
             )}
