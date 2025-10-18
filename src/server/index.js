@@ -11,6 +11,7 @@ import express from "express";
 import path from "path";
 
 import connectToDB from "./config/db.js";
+import User from "./models/user.js";
 
 import itemRouter from "./routes/itemR.js";
 import transactionRouter from "./routes/transactionR.js";
@@ -22,6 +23,13 @@ const PORT = process.env.PORT ?? 3500;
 const prod = process.env?.PROD && process.env.PROD === "1";
 
 app.use(express.json());
+app.use((req, res, next) => {
+    if (!process.env?.DEMO_USER_ID)
+        return res.status(500).json({ message: "Environment variables not set" });
+    const userId = process.env.DEMO_USER_ID;
+    req.user = { id: userId };
+    next();
+});
 
 app.use("/api/items", itemRouter);
 app.use("/api/transactions", transactionRouter);
