@@ -6,6 +6,8 @@ I'm personally a follower of ISKCON (International Society for Krsna Consciousne
 
 NOTE for reviewers: Since sign in system is not yet implemented, a user is by default logged in always.
 
+In this version, a DEMO user is auto logged in always, as we couldn't develop a login system within the time, so there is no need to login.
+
 ## Features
 
 - Intutive interface for easy data entry
