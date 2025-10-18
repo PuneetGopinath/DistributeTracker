@@ -26,17 +26,18 @@ export const createItem = async (req, res) => {
     }
 
     const createdBy = req.user.id;
-    const { name, category } = req.body;
+    const { name, category, price } = req.body;
 
-    if (!name || !category) {
-        return res.status(400).json({ message: "Name and category are required" });
+    if (!name || !category || !price) {
+        return res.status(400).json({ message: "Name, category, and price are required" });
     }
 
     const newItem = await Item.create({
         name,
         category,
+        price,
         createdBy
     });
 
-    res.json({ message: "Item created successfully", item: newItem._doc });
+    res.status(201).json({ message: "Item created successfully", item: newItem._doc });
 };
