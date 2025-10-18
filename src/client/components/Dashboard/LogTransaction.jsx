@@ -58,6 +58,7 @@ export default function LogTransaction() {
         } catch (err) {
             console.error("[ERROR] While logging the transaction:", err.message);
             console.error(err);
+            console.error(err.response.data);
         }
     };
 
@@ -69,7 +70,7 @@ export default function LogTransaction() {
                 ? <p>Loading...</p>
                 : (<form onSubmit={handleSubmit}>
                     {entries.map((entry, index) => 
-                        <div key={index} class="item-entry">
+                        <div key={index} className="item-entry">
                             <label>
                                 Item:
                                 <select
