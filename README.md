@@ -4,6 +4,8 @@ This is a simple and efficient web app designed to help ISKCON devotees and outr
 
 I'm personally a follower of ISKCON (International Society for Krsna Consciousness) and I've seen how some people record their distribution count in their hands or sometimes notepads.
 
+NOTE for reviewers: Since sign in system is not yet implemented, a user is by default logged in always.
+
 ## Features
 
 - Intutive interface for easy data entry
