@@ -15,8 +15,10 @@ export default function Layout() {
                     <Link to="/" className="nav-link">DistributeTracker</Link>
                 </div>
                 <div className="header-right">
-                    <Link to="/dashboard/log-transaction" className="nav-link">Log Transaction</Link>
-                    <Link to="/dashboard/view-transactions" className="nav-link">View Transactions</Link>
+                    <Link to="/dashboard/items" className="nav-link">List Items</Link>
+                    <Link to="/dashboard/items/create" className="nav-link">Create Item</Link>
+                    <Link to="/dashboard/transactions/log" className="nav-link">Log Transaction</Link>
+                    <Link to="/dashboard/transactions" className="nav-link">View Transactions</Link>
                 </div>
             </header>
             <main>
