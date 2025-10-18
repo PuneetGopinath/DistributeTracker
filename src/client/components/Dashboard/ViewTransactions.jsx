@@ -39,12 +39,17 @@ export default function ViewTransactions() {
             <h2 className="title">Logged Transactions</h2>
 
             <div className="cards-container">
-                {tr ? tr.map((t, i) => (
-                    <div key={i} className="card">
-                        <h2>{t.quantity}x {t.item.name}</h2>
-
-                        <h5>Price per item: {t.price}</h5>
-                        <h5>Payment Method: {t.paymentMethod}</h5>
+                {tr ? tr.map((t, index) => (
+                    <div key={index} className="card">
+                        <h3>Transaction #{index + 1}</h3>
+                        <h5>Date: {new Date(t.createdAt).toLocaleDateString()} {new Date(t.createdAt).toLocaleTimeString()}</h5>
+                        {t.items.map((entry, i) => (
+                            <div key={i} className="sub-card">
+                                <h3>{entry.quantity}x {entry.item.name}</h3>
+                                <p>Price per item: {entry.price}</p>
+                                <p>Payment Method: {entry.paymentMethod}</p>
+                            </div>
+                        ))}
                     </div>
                 )) : "No transactions logged so far"}
             </div>
