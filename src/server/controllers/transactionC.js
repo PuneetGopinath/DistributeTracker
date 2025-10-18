@@ -63,6 +63,6 @@ export const getAllTransactions = async (req, res) => {
     const transactions = await Transaction.find()
         .populate("items.itemId")
         .lean();
-    const items = transactions.items.map(t => ({...t, "item": t.itemId, "itemId": undefined }));
+    const items = transactions.map(tr => tr.items.map(i => ({...i, "item": i.itemId, "itemId": undefined })));
     res.json(items);
 };
