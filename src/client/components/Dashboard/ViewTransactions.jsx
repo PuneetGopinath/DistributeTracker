@@ -36,11 +36,11 @@ export default function ViewTransactions() {
 
     return (
         <>
-            <h2>Logged Transactions</h2>
+            <h2 className="title">Logged Transactions</h2>
 
-            <div class="cards-container">
+            <div className="cards-container">
                 {tr ? tr.map((t, i) => (
-                    <div key={i} class="card">
+                    <div key={i} className="card">
                         <h2>{t.quantity}x {t.item.name}</h2>
 
                         <h5>Price per item: {t.price}</h5>
