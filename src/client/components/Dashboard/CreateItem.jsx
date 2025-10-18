@@ -29,9 +29,9 @@ export default function CreateItem() {
 
     return (
         <>
-            <h2>Create a new Item</h2>
+            <h2 className="title">Create a new Item</h2>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="item-form">
                 <label>
                     Name:
                     <input type="text" name="name" required />

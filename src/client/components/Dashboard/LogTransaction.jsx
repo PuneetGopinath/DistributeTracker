@@ -64,13 +64,24 @@ export default function LogTransaction() {
 
     return (
         <>
-            <h2>Log a new Transaction</h2>
+            <h2 className="title">Log a new Transaction</h2>
 
             {items.length === 0
                 ? <p>Loading...</p>
-                : (<form onSubmit={handleSubmit}>
+                : (<form onSubmit={handleSubmit} className="transaction-form">
                     {entries.map((entry, index) => 
                         <div key={index} className="item-entry">
+                            <button
+                                type="button"
+                                className="remove"
+                                onClick={() => {
+                                    if (entries.length > 1) {
+                                        setEntries(prev => 
+                                            prev.filter((_, i) => index !== i)
+                                        )
+                                    }
+                                }}
+                            >X</button>
                             <label>
                                 Item:
                                 <select
@@ -141,18 +152,6 @@ export default function LogTransaction() {
                                     required
                                 />
                             </label>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    if (entries.length > 1) {
-                                        setEntries(prev => 
-                                            prev.filter((_, i) => index !== i)
-                                        )
-                                    }
-                                }}
-                            >
-                                Remove
-                            </button>
                         </div>
                     )}
                     <button
@@ -166,7 +165,8 @@ export default function LogTransaction() {
                     >
                         Add Item
                     </button>
-                    <button type="submit">Log Transaction</button>
+                    <br /><br />
+                    <button type="submit" className="center">Log Transaction</button>
                 </form>)}
         </>
     );
