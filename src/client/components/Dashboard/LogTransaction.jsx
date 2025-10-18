@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router";
 
 export default function LogTransaction() {
     const defaultItem = { itemId: "", quantity: 1, price: 0.00, paymentMethod: "Cash" };
@@ -67,7 +68,11 @@ export default function LogTransaction() {
             <h2 className="title">Log a new Transaction</h2>
 
             {items.length === 0
-                ? <p>Loading...</p>
+                ? (<>
+                    <h3>Loading...</h3>
+                    <p>If it's been a while and you still don't see any items, it means no items were created.</p>
+                    <p>Please create items <Link to="/items/new">here</Link>.</p>
+                </>)
                 : (<form onSubmit={handleSubmit} className="transaction-form">
                     {entries.map((entry, index) => 
                         <div key={index} className="item-entry">
