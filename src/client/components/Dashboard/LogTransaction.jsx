@@ -125,7 +125,7 @@ export default function LogTransaction() {
                                 />
                             </label>
                             <label>
-                                Price:
+                                Price per item:
                                 <input
                                     type="number"
                                     name="price"
