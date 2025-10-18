@@ -9,6 +9,7 @@ import { config } from "dotenv";
 
 import express from "express";
 import path from "path";
+import { fileURLToPath } from "url";
 
 import connectToDB from "./config/db.js";
 import User from "./models/user.js";
@@ -21,6 +22,9 @@ config();
 const app = express();
 const PORT = process.env.PORT ?? 3500;
 const prod = process.env?.PROD && process.env.PROD === "1";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(express.json());
 app.use((req, res, next) => {
