@@ -6,6 +6,7 @@
  */
 
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -29,6 +30,15 @@ const userSchema = new mongoose.Schema({
         sparse: true
     }
 }, { timestamps: true });
+
+const saltRounds = parseInt(process.env.SALT_ROUNDS) || 10;
+
+userSchema.pre("save", async function(next) {
+    if (!this.isModified("password") || !this.password) return next();
+
+    this.password = await bcrypt.hash(this.password, saltRounds);
+    next();
+});
 
 const User = mongoose.model("User", userSchema);
 export default User;
