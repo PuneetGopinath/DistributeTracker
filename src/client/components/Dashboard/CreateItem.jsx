@@ -15,7 +15,7 @@ export default function CreateItem() {
         const data = Object.fromEntries(formData.entries());
 
         try {
-            const res = await axios.post("/api/items", data);
+            const res = await axios.post("/api/items", data, { withCredentials: true });
             if (res.status === 201) {
                 alert("Item created successfully!");
                 console.log("[INFO] Item created successfully");

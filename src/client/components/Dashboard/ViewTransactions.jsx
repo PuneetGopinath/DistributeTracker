@@ -16,7 +16,7 @@ export default function ViewTransactions() {
 
         (async () => {
             try {
-                const res = await axios.get("/api/transactions", { signal: controller.signal });
+                const res = await axios.get("/api/transactions", { signal: controller.signal, withCredentials: true });
 
                 if (res.status === 200) {
                     setTr(res.data);

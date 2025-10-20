@@ -16,7 +16,7 @@ export default function ListItems() {
 
         (async () => {
             try {
-                const res = await axios.get("/api/items", { signal: controller.signal });
+                const res = await axios.get("/api/items", { signal: controller.signal, withCredentials: true });
 
                 if (res.status === 200) {
                     setItems(res.data);

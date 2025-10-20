@@ -20,7 +20,7 @@ export default function LogTransaction() {
 
         (async () => {
             try {
-                const res = await axios.get("/api/items", { signal: controller.signal });
+                const res = await axios.get("/api/items", { signal: controller.signal, withCredentials: true });
 
                 if (res.status === 200) {
                     setItems(res.data);
@@ -47,7 +47,7 @@ export default function LogTransaction() {
         }));
 
         try {
-            const res = await axios.post("/api/transactions", { items: transactionData });
+            const res = await axios.post("/api/transactions", { items: transactionData }, { withCredentials: true });
 
             if (res.status === 201) {
                 alert("Transaction Logged successfully!");
