@@ -11,8 +11,22 @@ export default defineConfig({
     plugins: [react()],
     server: {
         proxy: {
-            "/api": `http://localhost:${PORT}`, // Proxy API requests to the backend server
-            "/livez": `http://localhost:${PORT}` // Proxy health check requests to the backend server
+            "/api": {
+                target: `http://localhost:${PORT}`,
+                configure: (proxy, _options) => {
+                    proxy.on("proxyReq", (proxyReq, req, res) => {
+                        console.log("Proxying request to target:", proxyReq.path);
+                    });
+                },
+            }, // Proxy API requests to the backend server
+            "/livez": {
+                target: `http://localhost:${PORT}`,
+                configure: (proxy, _options) => {
+                    proxy.on("proxyReq", (proxyReq, req, res) => {
+                        console.log("Proxying request to target:", proxyReq.path);
+                    });
+                },
+            }, // Proxy health check requests to the backend server
         }
     },
     build: {
