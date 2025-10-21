@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
 
 const saltRounds = parseInt(process.env.SALT_ROUNDS) || 10;
 
-userSchema.pre("save", async () => {
+userSchema.pre("save", async function () {
     if (!this.isModified("password") || !this.password) return;
 
     this.password = await bcrypt.hash(this.password, saltRounds);
