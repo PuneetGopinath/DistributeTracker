@@ -8,6 +8,9 @@
 import { config } from "dotenv";
 
 import express from "express";
+import cookieParser from "cookie-parser";
+import { jwtVerify } from "jose";
+
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -32,12 +35,24 @@ if (!process.env?.JWT_SECRET) {
 }
 
 app.use(express.json());
+app.use(cookieParser());
 app.use((req, res, next) => {
-    if (!process.env?.DEMO_USER_ID)
-        return res.status(500).json({ message: "Environment variables not set" });
-    const userId = process.env.DEMO_USER_ID;
-    req.user = { id: userId };
-    next();
+    const token = req.cookies?.token;
+    if (token) {
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+        // Verify and decode the token
+        jwtVerify(token, secret)
+            .then((decoded) => {
+                req.user = { id: decoded.payload.userId };
+                next();
+            })
+            .catch((err) => {
+                console.warn("[WARN] Invalid JWT token:", err.message);
+                next();
+            });
+    } else {
+        next();
+    }
 });
 
 app.get("/livez", (req, res) => res.status(200).send({ status: "OK", timestamp: Date.now() }));
