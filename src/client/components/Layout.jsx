@@ -7,7 +7,7 @@
 
 import { Link, Outlet } from "react-router";
 
-export default function Layout() {
+export default function Layout({ signedIn }) {
     return (
         <>
             <header className="header">
@@ -15,10 +15,18 @@ export default function Layout() {
                     <Link to="/" className="nav-link">DistributeTracker</Link>
                 </div>
                 <div className="header-right">
-                    <Link to="/dashboard/items" className="nav-link">List Items</Link>
-                    <Link to="/dashboard/items/create" className="nav-link">Create Item</Link>
-                    <Link to="/dashboard/transactions/log" className="nav-link">Log Transaction</Link>
-                    <Link to="/dashboard/transactions" className="nav-link">View Transactions</Link>
+                    {signedIn
+                        ? <>
+                            <Link to="/dashboard/items" className="nav-link">List Items</Link>
+                            <Link to="/dashboard/items/create" className="nav-link">Create Item</Link>
+                            <Link to="/dashboard/transactions/log" className="nav-link">Log Transaction</Link>
+                            <Link to="/dashboard/transactions" className="nav-link">View Transactions</Link>
+                        </>
+                        : <>
+                            <Link to="/signin" className="nav-link">Sign In</Link>
+                            <Link to="/signup" className="nav-link">Sign Up</Link>
+                        </>
+                    }
                 </div>
             </header>
             <main>
