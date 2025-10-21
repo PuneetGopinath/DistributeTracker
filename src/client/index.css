@@ -133,7 +133,8 @@ button:disabled:hover {
 }
 
 .transaction-form,
-.item-form {
+.item-form,
+.auth-form {
     max-width: 500px;
     margin: 0 auto;
     background-color: #f9f9f9;
@@ -143,7 +144,8 @@ button:disabled:hover {
 }
 
 .transaction-form label,
-.item-form label {
+.item-form label,
+.auth-form label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: bold;
@@ -152,7 +154,9 @@ button:disabled:hover {
 .transaction-form input,
 .transaction-form select,
 .item-form input,
-.item-form select {
+.item-form select,
+.auth-form input,
+.auth-form select {
     width: 100%;
     padding: 0.5rem;
     margin-bottom: 1rem;
@@ -192,7 +196,8 @@ button:disabled:hover {
 }
 
 .transaction-form button,
-.item-form button {
+.item-form button,
+.auth-form button {
     background-color: #0077ff;
     color: white;
     padding: 0.5rem 1rem;
@@ -203,7 +208,8 @@ button:disabled:hover {
 }
 
 .transaction-form button:hover,
-.item-form button:hover {
+.item-form button:hover,
+.auth-form button:hover {
     background-color: #005bb5;
 }
 
