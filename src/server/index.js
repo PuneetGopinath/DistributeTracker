@@ -12,8 +12,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import connectToDB from "./config/db.js";
-import User from "./models/user.js";
 
+import authRouter from "./routes/authR.js";
 import itemRouter from "./routes/itemR.js";
 import transactionRouter from "./routes/transactionR.js";
 
@@ -26,6 +26,11 @@ const prod = process.env?.PROD && process.env.PROD === "1";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+if (!process.env?.JWT_SECRET) {
+    console.error("[FATAL] JWT_SECRET environment variable not set. Exiting...");
+    process.exit(1);
+}
+
 app.use(express.json());
 app.use((req, res, next) => {
     if (!process.env?.DEMO_USER_ID)
@@ -35,6 +40,9 @@ app.use((req, res, next) => {
     next();
 });
 
+app.get("/livez", (req, res) => res.status(200).send({ status: "OK", timestamp: Date.now() }));
+
+app.use("/api/auth", authRouter);
 app.use("/api/items", itemRouter);
 app.use("/api/transactions", transactionRouter);
 
