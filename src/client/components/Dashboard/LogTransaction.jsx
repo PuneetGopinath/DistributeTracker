@@ -101,7 +101,7 @@ export default function LogTransaction() {
                                     }}
                                     required
                                 >
-                                    <option value="" disabled selected>Select an item</option>
+                                    <option value="" disabled>Select an item</option>
                                     {items.map(i => (
                                         <option key={i._id} value={i._id}>{i.name} ({i.category})</option>
                                     ))}
