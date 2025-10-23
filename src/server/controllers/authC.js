@@ -10,8 +10,14 @@ import { SignJWT } from "jose";
 
 import User from "../models/User.js";
 
-const getToken = async (userId) => {
+const getToken = async (id) => {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+
+    let userId = id;
+
+    if (typeof userId !== "string") {
+        userId = userId.toString();
+    }
 
     const token = await new SignJWT({ userId })
         .setProtectedHeader({ alg: "HS256" })
