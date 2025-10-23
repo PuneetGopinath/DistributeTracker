@@ -19,7 +19,7 @@ export default function SignUp({ signedIn, setSigned }) {
 
         (async () => {
             try {
-                const res = await axios.post("/api/auth/signup", data);
+                const res = await axios.post("/api/auth/signup", data, { withCredentials: true });
 
                 if (res.status === 201) {
                     console.log("[INFO] User signed up successfully:", res.data);

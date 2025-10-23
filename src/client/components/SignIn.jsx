@@ -19,7 +19,7 @@ export default function SignIn({ signedIn, setSigned }) {
 
         (async () => {
             try {
-                const res = await axios.post("/api/auth/signin", data);
+                const res = await axios.post("/api/auth/signin", data, { withCredentials: true });
 
                 if (res.status === 200) {
                     console.log("[INFO] User signed in successfully:", res.data);
