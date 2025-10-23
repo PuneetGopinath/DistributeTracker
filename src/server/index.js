@@ -8,6 +8,7 @@
 import { config } from "dotenv";
 
 import express from "express";
+import cors from "cors";
 import cookieParser from "cookie-parser";
 import { jwtVerify } from "jose";
 
@@ -36,6 +37,11 @@ if (!process.env?.JWT_SECRET) {
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+    origin: process.env?.CORS_ORIGIN?.split(",") || "http://localhost:3000",
+    credentials: true,
+}));
+
 app.use((req, res, next) => {
     const token = req.cookies?.token;
     if (token) {
