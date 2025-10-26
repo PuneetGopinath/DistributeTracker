@@ -96,6 +96,8 @@ export default function LogTransaction() {
                                         setEntries(prev => {
                                             const newEntries = [...prev];
                                             newEntries[index].itemId = target.value;
+                                            const item = items.find(i => i._id === target.value);
+                                            newEntries[index].price = item ? item.price : 0;
                                             return newEntries;
                                         });
                                     }}
