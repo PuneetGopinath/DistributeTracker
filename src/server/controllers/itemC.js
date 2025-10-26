@@ -31,13 +31,18 @@ export const createItem = async (req, res) => {
     if (!name || !category || !price) {
         return res.status(400).json({ message: "Name, category, and price are required" });
     }
-
-    const newItem = await Item.create({
+    
+    const newItemData = {
         name,
         category,
         price,
         createdBy
-    });
+    };
+
+    if (req.body?.createdAt)
+        newItemData.createdAt = req.body.createdAt;
+
+    const newItem = await Item.create(newItemData);
 
     res.status(201).json({ message: "Item created successfully", item: newItem._doc });
 };

@@ -33,7 +33,15 @@ export const createTransaction = async (req, res) => {
         }
     }
 
-    const transaction = await Transaction.create({ items, loggedBy });
+    const newTransactionData = {
+        items,
+        loggedBy
+    };
+
+    if (req.body?.createdAt)
+        newTransactionData.createdAt = req.body.createdAt;
+
+    const transaction = await Transaction.create(newTransactionData);
 
     return res.status(201).json({ message: "Transaction logged successfully.", transaction: transaction._doc });
 };
