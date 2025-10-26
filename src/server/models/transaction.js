@@ -40,7 +40,7 @@ const transactionSchema = new mongoose.Schema({
         ref: "User",
         required: true
     }
-}, { timestamps: true });
+}, { timestamps: { createdAt: true, updatedAt: true, overwriteImmutable: true } });
 
 const Transaction = mongoose.model("Transaction", transactionSchema);
 export default Transaction;

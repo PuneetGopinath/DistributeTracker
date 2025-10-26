@@ -26,7 +26,7 @@ const itemSchema = new mongoose.Schema({
         ref: "User",
         required: true
     }
-}, { timestamps: true });
+}, { timestamps: { createdAt: true, updatedAt: true, overwriteImmutable: true } });
 
 const Item = mongoose.model("Item", itemSchema);
 export default Item;
