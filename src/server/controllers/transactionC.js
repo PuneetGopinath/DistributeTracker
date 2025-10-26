@@ -74,6 +74,9 @@ export const getAllTransactions = async (req, res) => {
     const transactions = await Transaction.find()
         .populate("items.itemId")
         .lean();
+    if (!transactions || transactions.length === 0)
+        return res.status(404).json({ message: "No transactions found."});
+    
     const items = transactions.map(tr => ({ items: tr.items.map(i => ({...i, "item": i.itemId, "itemId": undefined })), createdAt: tr.createdAt }));
     res.json(items);
 };
