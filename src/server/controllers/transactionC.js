@@ -58,8 +58,11 @@ export const getTransaction = async (req, res) => {
     }
 
     const transaction = await Transaction.findById(id)
-        .populate("items.itemId", "name description price")
+        .populate("items.itemId", "name category price")
         .lean();
+    
+    if (!transaction)
+        return res.status(404).json({ message: "Transaction with given id not found."});
     res.json(transaction.items);
 };
 
