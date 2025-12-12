@@ -7,30 +7,44 @@
 
 import Item from "../models/item.js";
 
-const unauthorizedMsg = "You are not authorized. Please sign in/sign up to continue."
+const unauthorizedMsg = "You are not authorized. Please sign in/sign up to continue.";
+
+export const getItem = async (req, res) => {
+    if (!req.user?.id)
+        return res.status(401).json({ message: unauthorizedMsg });
+
+    if (!req.params?.id)
+        return res.status(400).json({ message: "The parameter 'id' is not provided and is required" });
+
+    const createdBy = req.user.id;
+    const notFound = `Requested Item with id ${req.params.id} not found`;
+    const item = await Item.findById(req.params.id).lean();
+    if (!item || item.createdBy !== createdBy)
+        return res.status(404).json({ message: notFound });
+
+    res.status(200).json(item);
+
+};
 
 export const getItems = async (req, res) => {
     // Returns items created by the signed-in user
-    if (!req.user || !req.user.id) {
+    if (!req.user?.id)
         return res.status(401).json({ message: unauthorizedMsg });
-    }
 
-    const userId = req.user.id;
-    const items = await Item.find({ createdBy: userId }).lean();
+    const createdBy = req.user.id;
+    const items = await Item.find({ createdBy }).lean();
     res.json(items);
 };
 
 export const createItem = async (req, res) => {
-    if (!req.user || !req.user.id) {
+    if (!req.user?.id)
         return res.status(401).json({ message: unauthorizedMsg });
-    }
 
     const createdBy = req.user.id;
     const { name, category, price } = req.body;
 
-    if (!name || !category || !price) {
+    if (!name || !category || !price)
         return res.status(400).json({ message: "Name, category, and price are required" });
-    }
     
     const newItemData = {
         name,
