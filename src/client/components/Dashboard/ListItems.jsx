@@ -6,9 +6,10 @@
  */
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router";
 import axios from "axios";
 
-export default function ListItems() {
+export default function ListItems({ isSignedIn }) {
     const [items, setItems] = useState([]);
 
     useEffect(() => {
@@ -29,6 +30,8 @@ export default function ListItems() {
                 console.error("[ERROR] An error occurred while fetching items:", err);
             }
         })();
+
+        return () => controller.abort();
     }, []);
 
     return (
@@ -40,7 +43,7 @@ export default function ListItems() {
             ) : (
                 <ul>
                     {items.map(item => (
-                        <li key={item._id}>{item.name} - {item.category} <button className="edit" title="Coming Soon" disabled>Edit</button></li>
+                        <li key={item._id}>{item.name} - {item.category} <Link className="edit" to={`/dashboard/items/edit/${item._id}`}>Edit</Link></li>
                     ))}
                 </ul>
             )}
