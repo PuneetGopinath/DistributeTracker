@@ -17,6 +17,7 @@ import SignUp from "./components/SignUp";
 
 import CreateItem from "./components/Dashboard/CreateItem";
 import ListItems from "./components/Dashboard/ListItems";
+import EditItem from "./components/Dashboard/EditItem";
 import LogTransaction from "./components/Dashboard/LogTransaction";
 import ViewTransactions from "./components/Dashboard/ViewTransactions";
 
@@ -34,6 +35,7 @@ export default function App() {
                         <Route path="items">
                             <Route index element={<ListItems signedIn={isSignedIn}/>} />
                             <Route path="create" element={<CreateItem signedIn={isSignedIn} />} />
+                            <Route path="edit/:itemId" element={<EditItem signedIn={isSignedIn} />} />
                         </Route>
                         <Route path="transactions">
                             <Route index element={<ViewTransactions signedIn={isSignedIn} />} />
