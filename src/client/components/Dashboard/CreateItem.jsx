@@ -5,9 +5,22 @@
  * License: MIT (see LICENSE)
  */
 
+import { Link } from "react-router";
+
 import axios from "axios";
 
-export default function CreateItem() {
+export default function CreateItem({ isSignedIn }) {
+    if (!isSignedIn) {
+        return (
+            <>
+                <h2 className="title">Create a new Item</h2>
+                <p>You need to be signed in to create an item.</p>
+                <p>Please sign in <Link to="/signin">here</Link>.</p>
+            </>
+        );
+    }
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 

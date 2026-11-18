@@ -6,10 +6,21 @@
  */
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Link } from "react-router";
 
-export default function LogTransaction() {
+import axios from "axios";
+
+export default function LogTransaction({ isSignedIn }) {
+    if (!isSignedIn) {
+        return (
+            <>
+                <h2 className="title">Log a new Transaction</h2>
+                <p>You need to be signed in to log a transaction.</p>
+                <p>Please sign in <Link to="/signin">here</Link>.</p>
+            </>
+        );
+    }
+    
     const defaultItem = { itemId: "", quantity: 1, price: 0.00, paymentMethod: "Cash" };
 
     const [items, setItems] = useState([]);

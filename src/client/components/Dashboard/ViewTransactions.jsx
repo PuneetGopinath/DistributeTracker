@@ -6,9 +6,22 @@
  */
 
 import { useState, useEffect } from "react";
+import { Link } from "react-router";
+
 import axios from "axios";
 
-export default function ViewTransactions() {
+export default function ViewTransactions({ isSignedIn }) {
+    if (!isSignedIn) {
+        return (
+            <>
+                <h2 className="title">Logged Transactions</h2>
+                <p>You need to be signed in to view transactions.</p>
+                <p>Please sign in <Link to="/signin">here</Link>.</p>
+            </>
+        );
+    }
+
+
     const [ tr, setTr ] = useState(null);
 
     useEffect(() => {
