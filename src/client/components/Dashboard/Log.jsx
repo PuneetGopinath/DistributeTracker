@@ -1,7 +1,7 @@
 /**
  * DistributeTracker
  * © 2025 Puneet Gopinath. All rights reserved.
- * Filename: src/client/components/Dashboard/LogTransaction.jsx
+ * Filename: src/client/components/Dashboard/Log.jsx
  * License: MIT (see LICENSE)
  */
 
@@ -10,7 +10,7 @@ import { Link } from "react-router";
 
 import axios from "axios";
 
-export default function LogTransaction({ signedIn }) {
+export default function Log({ signedIn }) {
     if (!signedIn) {
         return (
             <>

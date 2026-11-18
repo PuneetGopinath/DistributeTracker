@@ -18,7 +18,7 @@ import SignUp from "./components/SignUp";
 import CreateItem from "./components/Dashboard/CreateItem";
 import ListItems from "./components/Dashboard/ListItems";
 import EditItem from "./components/Dashboard/EditItem";
-import LogTransaction from "./components/Dashboard/LogTransaction";
+import Log from "./components/Dashboard/Log";
 import ViewTransactions from "./components/Dashboard/ViewTransactions";
 
 export default function App() {
@@ -40,7 +40,7 @@ export default function App() {
                         </Route>
                         <Route path="transactions">
                             <Route index element={<ViewTransactions signedIn={isSignedIn} />} />
-                            <Route path="log" element={<LogTransaction signedIn={isSignedIn} />} />
+                            <Route path="log" element={<Log signedIn={isSignedIn} />} />
                         </Route>
                     </Route>
                 </Route>
