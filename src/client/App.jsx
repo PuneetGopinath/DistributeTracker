@@ -23,6 +23,7 @@ import ViewTransactions from "./components/Dashboard/ViewTransactions";
 
 export default function App() {
     const [ isSignedIn, setIsSignedIn ] = useState(localStorage.getItem("signedin") === "true");
+    console.log("[INFO] User signed in status:", isSignedIn);
 
     return (
         <BrowserRouter>

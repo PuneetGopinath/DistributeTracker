@@ -9,8 +9,9 @@ import { Link } from "react-router";
 
 import axios from "axios";
 
-export default function CreateItem({ isSignedIn }) {
-    if (!isSignedIn) {
+
+export default function CreateItem({ signedIn }) {
+    if (!signedIn) {
         return (
             <>
                 <h2 className="title">Create a new Item</h2>

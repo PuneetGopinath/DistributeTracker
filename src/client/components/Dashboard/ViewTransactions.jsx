@@ -10,8 +10,8 @@ import { Link } from "react-router";
 
 import axios from "axios";
 
-export default function ViewTransactions({ isSignedIn }) {
-    if (!isSignedIn) {
+export default function ViewTransactions({ signedIn }) {
+    if (!signedIn) {
         return (
             <>
                 <h2 className="title">Logged Transactions</h2>
