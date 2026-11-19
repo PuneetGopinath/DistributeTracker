@@ -1,6 +1,6 @@
 /**
  * DistributeTracker
- * © 2025 Puneet Gopinath. All rights reserved.
+ * © 2025-26 Puneet Gopinath. All rights reserved.
  * Filename: src/client/components/Layout.jsx
  * License: MIT (see LICENSE)
  */
@@ -19,7 +19,8 @@ export default function Layout({ signedIn }) {
                         ? <>
                             <Link to="/dashboard/items" className="nav-link">List Items</Link>
                             <Link to="/dashboard/items/create" className="nav-link">Create Item</Link>
-                            <Link to="/dashboard/transactions/log" className="nav-link">Log Transaction</Link>
+                            <Link to="/dashboard/transactions/log" className="nav-link">Log</Link>
+                            <Link to="/dashboard/transactions/quicklog" className="nav-link">Quick Log</Link>
                             <Link to="/dashboard/transactions" className="nav-link">View Transactions</Link>
                         </>
                         : <>
@@ -33,8 +34,7 @@ export default function Layout({ signedIn }) {
                 <Outlet />
             </main>
             <footer className="footer">
-                <p>&copy; Puneet Gopinath {new Date().getFullYear()}</p>
-                <p>Made with tinge of devotion to Lord Kṛṣṇa</p>
+                <p>&copy; Puneet Gopinath 2025-{new Date().getFullYear()}</p>
             </footer>
         </>
     );

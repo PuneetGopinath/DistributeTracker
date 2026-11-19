@@ -1,6 +1,6 @@
 /**
  * DistributeTracker
- * © 2025 Puneet Gopinath. All rights reserved.
+ * © 2025-26 Puneet Gopinath. All rights reserved.
  * Filename: src/client/App.jsx
  * License: MIT (see LICENSE)
  */
@@ -19,10 +19,11 @@ import CreateItem from "./components/Dashboard/CreateItem";
 import ListItems from "./components/Dashboard/ListItems";
 import EditItem from "./components/Dashboard/EditItem";
 import Log from "./components/Dashboard/Log";
+import QuickLog from "./components/Dashboard/QuickLog";
 import ViewTransactions from "./components/Dashboard/ViewTransactions";
 
 export default function App() {
-    const [ isSignedIn, setIsSignedIn ] = useState(localStorage.getItem("signedin") === "true");
+    const [ isSignedIn, setIsSignedIn ] = useState(localStorage?.getItem?.("signedin") === "true");
     console.log("[INFO] User signed in status:", isSignedIn);
 
     return (
@@ -41,6 +42,7 @@ export default function App() {
                         <Route path="transactions">
                             <Route index element={<ViewTransactions signedIn={isSignedIn} />} />
                             <Route path="log" element={<Log signedIn={isSignedIn} />} />
+                            <Route path="quicklog" element={<QuickLog signedIn={isSignedIn} />} />
                         </Route>
                     </Route>
                 </Route>
