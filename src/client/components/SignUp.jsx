@@ -1,15 +1,29 @@
 /**
  * DistributeTracker
- * © 2025 Puneet Gopinath. All rights reserved.
+ * © 2025-26 Puneet Gopinath. All rights reserved.
  * Filename: src/client/components/SignUp.jsx
  * License: MIT (see LICENSE)
  */
 
 import { useNavigate } from "react-router";
+
 import axios from "axios";
 
 export default function SignUp({ signedIn, setSigned }) {
     const navigate = useNavigate();
+
+    if (signedIn) {
+        return (
+            <>
+                <h2 className="title">You are already signed in</h2>
+                <button onClick={() => {
+                    localStorage.setItem("signedin", "false");
+                    setSigned(false);
+                    navigate("/");
+                }}>Sign Out</button>
+            </>
+        );
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
