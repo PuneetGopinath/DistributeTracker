@@ -20,7 +20,7 @@ import ListItems from "./components/Dashboard/ListItems";
 import EditItem from "./components/Dashboard/EditItem";
 import Log from "./components/Dashboard/Log";
 import QuickLog from "./components/Dashboard/QuickLog";
-import ViewTransactions from "./components/Dashboard/ViewTransactions";
+import ViewLogs from "./components/Dashboard/ViewLogs";
 
 export default function App() {
     const [ isSignedIn, setIsSignedIn ] = useState(localStorage?.getItem?.("signedin") === "true");
@@ -40,7 +40,7 @@ export default function App() {
                             <Route path="edit/:itemId" element={<EditItem signedIn={isSignedIn} />} />
                         </Route>
                         <Route path="transactions">
-                            <Route index element={<ViewTransactions signedIn={isSignedIn} />} />
+                            <Route index element={<ViewLogs signedIn={isSignedIn} />} />
                             <Route path="log" element={<Log signedIn={isSignedIn} />} />
                             <Route path="quicklog" element={<QuickLog signedIn={isSignedIn} />} />
                         </Route>

@@ -1,7 +1,7 @@
 /**
  * DistributeTracker
  * © 2025-26 Puneet Gopinath. All rights reserved.
- * Filename: src/client/components/Dashboard/ViewTransactions.jsx
+ * Filename: src/client/components/Dashboard/ViewLogs.jsx
  * License: MIT (see LICENSE)
  */
 
@@ -10,12 +10,12 @@ import { Link } from "react-router";
 
 import axios from "axios";
 
-export default function ViewTransactions({ signedIn }) {
+export default function ViewLogs({ signedIn }) {
     if (!signedIn) {
         return (
             <>
-                <h2 className="title">Logged Transactions</h2>
-                <p>You need to be signed in to view transactions.</p>
+                <h2 className="title">Logs</h2>
+                <p>You need to be signed in to view logs.</p>
                 <p>Please sign in <Link to="/signin">here</Link>.</p>
             </>
         );
@@ -49,12 +49,12 @@ export default function ViewTransactions({ signedIn }) {
 
     return (
         <>
-            <h2 className="title">Logged Transactions</h2>
+            <h2 className="title">Normal Logs</h2>
 
             <div className="cards-container">
                 {tr ? tr.map((t, index) => (
                     <div key={index} className="card">
-                        <h3>Transaction #{index + 1}</h3>
+                        <h3>Log #{index + 1}</h3>
                         <h5>Date: {new Date(t.createdAt).toLocaleDateString()} {new Date(t.createdAt).toLocaleTimeString()}</h5>
                         {t.items.map((entry, i) => (
                             <div key={i} className="sub-card">
@@ -64,7 +64,7 @@ export default function ViewTransactions({ signedIn }) {
                             </div>
                         ))}
                     </div>
-                )) : "No transactions logged so far"}
+                )) : "No logs have been created so far"}
             </div>
         </>
     );
