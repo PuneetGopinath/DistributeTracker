@@ -1,6 +1,6 @@
 /**
  * DistributeTracker
- * © 2025 Puneet Gopinath. All rights reserved.
+ * © 2025-26 Puneet Gopinath. All rights reserved.
  * Filename: src/client/components/Dashboard/CreateItem.jsx
  * License: MIT (see LICENSE)
  */
@@ -8,7 +8,6 @@
 import { Link } from "react-router";
 
 import axios from "axios";
-
 
 export default function CreateItem({ signedIn }) {
     if (!signedIn) {

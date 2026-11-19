@@ -7,9 +7,16 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
+
 import axios from "axios";
 
-export default function ListItems({ isSignedIn }) {
+export default function ListItems({ signedIn }) {
+    if (!signedIn) {
+        return (
+            <h2 className="title">Please sign in to view items</h2>
+        );
+    }
+
     const [items, setItems] = useState([]);
 
     useEffect(() => {

@@ -9,7 +9,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import axios from "axios";
 
-export default function EditItem({ isSignedIn }) {
+export default function EditItem({ signedIn }) {
+    if (!signedIn) {
+        return (
+            <h2 className="title">Please sign in to edit items</h2>
+        );
+    }
+    
     const { itemId } = useParams();
     const [ item, setItem ] = useState(null);
 
