@@ -137,3 +137,9 @@ export function getCounts(events) {
     });
     return counts;
 }
+
+export async function getAllSessions() {
+    const db = await openDB();
+    const sessions = await wrap(db.transaction("sessions").objectStore("sessions").getAll());
+    return sessions.sort((a, b) => b.startedAt - a.startedAt);
+}

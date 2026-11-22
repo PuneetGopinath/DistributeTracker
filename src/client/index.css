@@ -1,6 +1,6 @@
 /**
  * DistributeTracker
- * © 2025 Puneet Gopinath. All rights reserved.
+ * © 2025-26 Puneet Gopinath. All rights reserved.
  * Filename: src/client/index.css
  * License: MIT (see LICENSE)
  */
@@ -132,6 +132,13 @@ button:disabled:hover {
     color: #222;
 }
 
+.subtitle {
+    text-align: center;
+    margin: 2rem 0;
+    font-size: 1.5rem;
+    color: #555;
+}
+
 .transaction-form,
 .item-form,
 .auth-form {
@@ -211,6 +218,73 @@ button:disabled:hover {
 .item-form button:hover,
 .auth-form button:hover {
     background-color: #005bb5;
+}
+
+.error {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+
+.session_select {
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.session_select:hover {
+    border-color: #0077ff;
+}
+
+.new_session {
+    background-color: #28a745;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 0 0.5rem 0;
+}
+
+.new_session:hover {
+    background-color: #1e7e34;
+}
+
+.activity {
+    list-style-type: none;
+    padding: 1rem;
+    margin: 0 auto;
+    width: 600px;
+}
+
+.activity li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.undo {
+    background-color: #ffc107;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 1rem;
+}
+
+.undo:hover {
+    background-color: #e0a800;
+}
+
+.undo:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 .grid {
