@@ -10,6 +10,8 @@ import { SignJWT } from "jose";
 
 import User from "../models/user.js";
 
+import Item from "../models/item.js";
+
 const getToken = async (id) => {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
@@ -44,6 +46,30 @@ export const signUp = async (req, res) => {
     const token = await getToken(user._id);
 
     res.cookie("token", token, { httpOnly: true, secure: process.env?.PROD === "1", sameSite: "lax" });
+
+
+    
+    const itemsData = [
+        {
+            name: "Bhagavad-Gītā As It Is",
+            category: "Books",
+            price: 350
+        },
+        {
+            name: "Kṛṣṇa",
+            category: "Books",
+            price: 350
+        },
+        {
+            name: "Rāmāyaṇa",
+            category: "Books",
+            price: 300
+        }
+    ].map(item => ({ ...item, createdBy: user._id, createdAt: Date.now() }));
+
+    await Item.insertMany(itemsData);
+
+    
 
     return res.status(201).json({ message: "User created successfully" });
 };

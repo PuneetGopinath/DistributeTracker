@@ -19,7 +19,7 @@ export default function Layout({ signedIn }) {
                         ? <>
                             <Link to="/dashboard/items" className="nav-link">List Items</Link>
                             <Link to="/dashboard/items/create" className="nav-link">Create Item</Link>
-                            <Link to="/dashboard/transactions/log" className="nav-link">Log</Link>
+                            {/*<Link to="/dashboard/transactions/log" className="nav-link">Log</Link>*/}
                             <Link to="/dashboard/transactions/quicklog" className="nav-link">Quick Log</Link>
                             <Link to="/dashboard/transactions" className="nav-link">View Logs</Link>
                         </>
