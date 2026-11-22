@@ -14,10 +14,14 @@ import { getAllSessions, getSessionEvents, getCachedItems, getCounts } from "../
 
 export default function ViewLogs({ signedIn }) {
     const [ tr, setTr ] = useState(null);
-    const [ sessions, setSessions ] = useState([]);
+    const [ localSessions, setLocalSessions ] = useState([]);
+    const [ localLoaded, setLocalLoaded ] = useState(false);
+    const [ cloudSessions, setCloudSessions ] = useState([]);
+    const [ cloudFailed, setCloudFailed ] = useState(false);
     const [ items, setItems ] = useState([]);
     const [ sessionId, setSessionId ] = useState("");
-    const [ events, setEvents ] = useState([]);
+    const [ rows, setRows ] = useState([]);
+    const [ rowsError, setRowsError ] = useState("");
 
     useEffect(() => {
         if (!signedIn) return;
@@ -43,7 +47,7 @@ export default function ViewLogs({ signedIn }) {
         return () => controller.abort();
     }, [signedIn]);
 
-    // sessions and item names come from this device's IndexedDB
+    // sessions saved on this device, and the item names cached by Quick Log
     useEffect(() => {
         if (!signedIn) return;
         let cancelled = false;
@@ -53,44 +57,101 @@ export default function ViewLogs({ signedIn }) {
                 const [allSessions, cachedItems] = await Promise.all([getAllSessions(), getCachedItems()]);
                 if (cancelled) return;
 
-                setSessions(allSessions);
+                setLocalSessions(allSessions);
                 setItems(cachedItems);
-                if (allSessions.length > 0) setSessionId(allSessions[0]._id);
             } catch (err) {
                 console.error("[ERROR] Failed to load quick log sessions:", err);
+            } finally {
+                if (!cancelled) setLocalLoaded(true);
             }
         })();
 
         return () => { cancelled = true; };
     }, [signedIn]);
 
+    // sessions stored in the cloud
     useEffect(() => {
-        if (!sessionId) return;
+        if (!signedIn) return;
+        const controller = new AbortController();
+
+        (async () => {
+            try {
+                const res = await axios.get("/api/quicklog/sessions", { signal: controller.signal, withCredentials: true });
+                setCloudSessions(res.data);
+                setCloudFailed(false);
+            } catch (err) {
+                if (axios.isCancel(err)) return;
+                console.error("[ERROR] Failed to fetch cloud sessions:", err);
+                setCloudFailed(true);
+            }
+        })();
+
+        return () => controller.abort();
+    }, [signedIn]);
+
+    // one list; a session that exists in both places uses the device copy, since it has every tap
+    const sessions = useMemo(() => {
+        const byId = new Map();
+        cloudSessions.forEach(s => byId.set(s._id, { ...s, local: false }));
+        localSessions.forEach(s => byId.set(s._id, { ...s, local: true }));
+
+        return [...byId.values()].sort((a, b) => new Date(b.startedAt) - new Date(a.startedAt));
+    }, [cloudSessions, localSessions]);
+
+    useEffect(() => {
+        if (!sessionId && sessions.length > 0) setSessionId(sessions[0]._id);
+    }, [sessions, sessionId]);
+
+    const isLocal = sessions.find(s => s._id === sessionId)?.local ?? false;
+
+    // counts: from IndexedDB for device sessions, from the server for the rest
+    useEffect(() => {
+        if (!sessionId || !localLoaded) return;
         let cancelled = false;
+        const controller = new AbortController();
 
-        getSessionEvents(sessionId)
-            .then(data => { if (!cancelled) setEvents(data); })
-            .catch(err => console.error("[ERROR] Failed to load session events:", err));
+        setRowsError("");
 
-        return () => { cancelled = true; };
-    }, [sessionId]);
+        (async () => {
+            try {
+                if (isLocal) {
+                    const counts = getCounts(await getSessionEvents(sessionId));
+                    if (cancelled) return;
 
-    const rows = useMemo(() => {
-        const counts = getCounts(events);
-        return Object.entries(counts)
-            .filter(([, count]) => count > 0)
-            .map(([itemId, count]) => ({
-                itemId,
-                count,
-                name: items.find(i => i._id === itemId)?.name ?? "Unknown item",
-            }));
-    }, [events, items]);
+                    setRows(Object.entries(counts)
+                        .filter(([, count]) => count > 0)
+                        .map(([itemId, count]) => ({
+                            itemId,
+                            count,
+                            name: items.find(i => i._id === itemId)?.name ?? "Unknown item",
+                        })));
+                } else {
+                    const res = await axios.get(`/api/quicklog/sessions/${sessionId}/counts`, { signal: controller.signal, withCredentials: true });
+                    if (!cancelled) setRows(res.data.counts);
+                }
+            } catch (err) {
+                if (axios.isCancel(err) || cancelled) return;
+                console.error("[ERROR] Failed to load session counts:", err);
+                setRows([]);
+                setRowsError("Could not load this session. Check your connection and try again.");
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+            controller.abort();
+        };
+    }, [sessionId, isLocal, localLoaded, items]);
 
     const total = rows.reduce((sum, r) => sum + r.count, 0);
 
     const sessionLabel = (s) => {
         const time = new Date(s.startedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        return `${s.name}, ${time}${s.endedAt ? "" : " (active)"}`;
+        const tags = [];
+        if (!s.endedAt) tags.push("active");
+        if (s.local && !s.synced) tags.push("not synced");
+
+        return `${s.name}, ${time}${tags.length > 0 ? ` (${tags.join(", ")})` : ""}`;
     };
 
     if (!signedIn) {
@@ -107,8 +168,10 @@ export default function ViewLogs({ signedIn }) {
         <>
             <h2 className="title">Quick Logs</h2>
 
+            {cloudFailed && <p className="error">Could not reach the cloud, showing only the sessions saved on this device.</p>}
+
             {sessions.length === 0 ? (
-                <p>No quick log sessions on this device yet.</p>
+                <p>No quick log sessions found yet.</p>
             ) : (
                 <>
                     <select className="session_select" value={sessionId} onChange={e => setSessionId(e.target.value)}>
@@ -117,7 +180,9 @@ export default function ViewLogs({ signedIn }) {
                         ))}
                     </select>
 
-                    {rows.length === 0 ? (
+                    {rowsError ? (
+                        <p className="error">{rowsError}</p>
+                    ) : rows.length === 0 ? (
                         <p>Nothing was counted in this session.</p>
                     ) : (
                         <>

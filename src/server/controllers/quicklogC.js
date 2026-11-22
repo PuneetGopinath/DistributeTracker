@@ -187,3 +187,61 @@ export const syncQuickLog = async (req, res) => {
         res.status(500).json({ message: "Sync failed, please try again." });
     }
 };
+
+// GET: the signed-in user's sessions, newest first
+export const getQuickLogSessions = async (req, res) => {
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ message: unauthorizedMsg });
+    }
+
+    try {
+        const sessions = await QuickLogSession.find({ loggedBy: req.user.id })
+            .select("name startedAt endedAt")
+            .sort({ startedAt: -1 })
+            .limit(100)
+            .lean();
+
+        res.json(sessions);
+    } catch (err) {
+        console.error("[ERROR] Failed to fetch quick log sessions:", err);
+        res.status(500).json({ message: "Could not fetch sessions." });
+    }
+};
+
+// GET: item counts of one session (sum of the event deltas), only items with a count above zero
+export const getQuickLogSessionCounts = async (req, res) => {
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ message: unauthorizedMsg });
+    }
+
+    const { id } = req.params;
+    if (!isUUID(id)) {
+        return res.status(400).json({ message: "Invalid session id." });
+    }
+
+    try {
+        const session = await QuickLogSession.findOne({ _id: id, loggedBy: req.user.id }).lean();
+        if (!session) return res.status(404).json({ message: "Session not found." });
+
+        const rows = await QuickLogEvent.aggregate([
+            { $match: { session: id } },
+            { $group: { _id: "$item", count: { $sum: "$delta" } } },
+            { $match: { count: { $gt: 0 } } },
+        ]);
+
+        const items = await Item.find({ _id: { $in: rows.map(r => r._id) } }).select("name").lean();
+        const names = new Map(items.map(i => [String(i._id), i.name]));
+
+        res.json({
+            session,
+            counts: rows.map(r => ({
+                itemId: String(r._id),
+                name: names.get(String(r._id)) ?? "Unknown item",
+                count: r.count,
+            })),
+        });
+    } catch (err) {
+        console.error("[ERROR] Failed to fetch session counts:", err);
+        res.status(500).json({ message: "Could not fetch session counts." });
+    }
+};
