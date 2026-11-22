@@ -69,6 +69,7 @@ const createSession = () => ({
     name: new Date().toLocaleDateString(undefined, { day: "numeric", month: "short" }),
     startedAt: Date.now(),
     endedAt: null,
+    synced: 0,
 });
 
 // find and create happen in one transaction, so two calls can't create two sessions
@@ -93,7 +94,7 @@ export async function startNewSession() {
     const store = tx.objectStore("sessions");
 
     const sessions = await wrap(store.getAll());
-    sessions.filter(s => !s.endedAt).forEach(s => store.put({ ...s, endedAt: Date.now() }));
+    sessions.filter(s => !s.endedAt).forEach(s => store.put({ ...s, endedAt: Date.now(), synced: 0 }));
 
     const session = createSession();
     store.add(session);
@@ -142,4 +143,54 @@ export async function getAllSessions() {
     const db = await openDB();
     const sessions = await wrap(db.transaction("sessions").objectStore("sessions").getAll());
     return sessions.sort((a, b) => b.startedAt - a.startedAt);
+}
+
+export async function getUnsyncedEvents(limit = 200) {
+    const db = await openDB();
+    const store = db.transaction("events").objectStore("events");
+    return wrap(store.index("synced").getAll(0, limit));
+}
+
+export async function countUnsyncedEvents() {
+    const db = await openDB();
+    const store = db.transaction("events").objectStore("events");
+    return wrap(store.index("synced").count(0));
+}
+
+// status 1 = stored on the server, 2 = rejected by the server for good
+export async function setEventsSyncStatus(ids, status) {
+    if (ids.length === 0) return;
+
+    const db = await openDB();
+    const tx = db.transaction("events", "readwrite");
+    const store = tx.objectStore("events");
+
+    for (const id of ids) {
+        const event = await wrap(store.get(id));
+        if (event) store.put({ ...event, synced: status });
+    }
+
+    await finished(tx);
+}
+
+export async function getUnsyncedSessions() {
+    const db = await openDB();
+    const sessions = await wrap(db.transaction("sessions").objectStore("sessions").getAll());
+    return sessions.filter(s => !s.synced);
+}
+
+// a session is only marked synced if it didn't change (e.g. get ended) while the request was in flight
+export async function markSessionsSynced(sent) {
+    if (sent.length === 0) return;
+
+    const db = await openDB();
+    const tx = db.transaction("sessions", "readwrite");
+    const store = tx.objectStore("sessions");
+
+    for (const s of sent) {
+        const current = await wrap(store.get(s._id));
+        if (current && current.endedAt === s.endedAt) store.put({ ...current, synced: 1 });
+    }
+
+    await finished(tx);
 }

@@ -5,7 +5,7 @@
  * License: MIT (see LICENSE)
  */
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Link } from "react-router";
 
 import axios from "axios";
@@ -19,7 +19,9 @@ import {
     getCachedItems,
     cacheItems,
     getCounts,
+    countUnsyncedEvents,
 } from "../../helpers/indexedDB";
+import { syncQuickLog } from "../../helpers/quickLogSync";
 
 export default function QuickLog({ signedIn }) {
     const [items, setItems] = useState([]);
@@ -27,8 +29,35 @@ export default function QuickLog({ signedIn }) {
     const [events, setEvents] = useState([]);
     const [error, setError] = useState("");
 
+    const [pending, setPending] = useState(0);
+    const [syncing, setSyncing] = useState(false);
+    const [syncFailed, setSyncFailed] = useState(false);
+    const [online, setOnline] = useState(navigator.onLine);
+
     const counts = useMemo(() => getCounts(events), [events]);
     const undone = useMemo(() => new Set(events.filter(e => e.reverses).map(e => e.reverses)), [events]);
+
+    const refreshPending = useCallback(() => {
+        countUnsyncedEvents()
+            .then(setPending)
+            .catch(err => console.error("[ERROR] Failed to count pending events:", err));
+    }, []);
+
+    const runSync = useCallback(async () => {
+        if (!navigator.onLine) return;
+
+        setSyncing(true);
+        try {
+            await syncQuickLog();
+            setSyncFailed(false);
+        } catch (err) {
+            console.error("[ERROR] Quick log sync failed:", err);
+            setSyncFailed(true);
+        } finally {
+            setSyncing(false);
+            refreshPending();
+        }
+    }, [refreshPending]);
 
     // local data first, so the screen works without a network
     useEffect(() => {
@@ -73,6 +102,38 @@ export default function QuickLog({ signedIn }) {
         return () => controller.abort();
     }, [signedIn]);
 
+    // sync when the page opens, when the connection comes back, and every 30 seconds
+    useEffect(() => {
+        if (!signedIn) return;
+
+        const goOnline = () => {
+            setOnline(true);
+            runSync();
+        };
+        const goOffline = () => setOnline(false);
+
+        refreshPending();
+        runSync();
+
+        window.addEventListener("online", goOnline);
+        window.addEventListener("offline", goOffline);
+        const timer = setInterval(runSync, 30000);
+
+        return () => {
+            window.removeEventListener("online", goOnline);
+            window.removeEventListener("offline", goOffline);
+            clearInterval(timer);
+        };
+    }, [signedIn, runSync, refreshPending]);
+
+    // and shortly after the last tap
+    useEffect(() => {
+        if (!signedIn || events.length === 0) return;
+
+        const timer = setTimeout(runSync, 2000);
+        return () => clearTimeout(timer);
+    }, [events, signedIn, runSync]);
+
     async function logEvent(itemId, action, delta, reverses) {
         const event = {
             _id: crypto.randomUUID(),
@@ -89,6 +150,7 @@ export default function QuickLog({ signedIn }) {
         try {
             await addEvent(event);
             setEvents(prev => [...prev, event]);
+            setPending(prev => prev + 1);
             setError("");
         } catch (err) {
             console.error("[ERROR] Failed to save event:", err);
@@ -120,6 +182,7 @@ export default function QuickLog({ signedIn }) {
             const next = await startNewSession();
             setSession(next);
             setEvents([]);
+            runSync();
         } catch (err) {
             console.error("[ERROR] Failed to start a new session:", err);
             setError("Could not start a new session.");
@@ -129,6 +192,12 @@ export default function QuickLog({ signedIn }) {
     const nameOf = (itemId) => items.find(i => i._id === itemId)?.name ?? "Unknown item";
     const canUndo = (e) => !e.reverses && !undone.has(e._id) && (counts[e.itemId] ?? 0) - e.delta >= 0;
     const recent = [...events].sort((a, b) => b.ts - a.ts).slice(0, 8);
+
+    let syncLabel = "✓ All synced";
+    if (syncing) syncLabel = "⟳ Syncing…";
+    else if (!online) syncLabel = pending > 0 ? `Offline, ${pending} pending` : "Offline";
+    else if (syncFailed) syncLabel = `⚠ Sync failed, will retry${pending > 0 ? ` (${pending} pending)` : ""}`;
+    else if (pending > 0) syncLabel = `● ${pending} pending`;
 
     if (!signedIn) {
         return (
@@ -146,10 +215,12 @@ export default function QuickLog({ signedIn }) {
 
             {session && (
                 <p>
-                    Session: {session.name}{" "}
+                    <span className="session_name">Session: {session.name}{" "}</span>
                     <button className="new_session" onClick={newSession}>New session</button>
                 </p>
             )}
+
+            <span className="sync_status">{syncLabel}</span>
 
             {error && <p className="error">{error}</p>}
 

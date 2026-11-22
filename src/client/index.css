@@ -239,6 +239,12 @@ button:disabled:hover {
     border-color: #0077ff;
 }
 
+.session_name {
+    font-weight: bold;
+    color: #0077ff;
+    margin-right: 1rem;
+}
+
 .new_session {
     background-color: #28a745;
     color: white;
@@ -251,6 +257,12 @@ button:disabled:hover {
 
 .new_session:hover {
     background-color: #1e7e34;
+}
+
+.sync_status {
+    font-size: 0.9rem;
+    color: #555;
+    padding: 0.5rem;
 }
 
 .activity {
