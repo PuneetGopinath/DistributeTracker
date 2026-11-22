@@ -1,6 +1,6 @@
 /**
  * DistributeTracker
- * © 2025 Puneet Gopinath. All rights reserved.
+ * © 2025-26 Puneet Gopinath. All rights reserved.
  * Filename: src/server/index.js
  * License: MIT (see LICENSE)
  */
@@ -20,6 +20,7 @@ import connectToDB from "./config/db.js";
 import authRouter from "./routes/authR.js";
 import itemRouter from "./routes/itemR.js";
 import transactionRouter from "./routes/transactionR.js";
+import quicklogRouter from "./routes/quicklogR.js";
 
 config();
 
@@ -66,6 +67,7 @@ app.get("/livez", (req, res) => res.status(200).send({ status: "OK", timestamp: 
 app.use("/api/auth", authRouter);
 app.use("/api/items", itemRouter);
 app.use("/api/transactions", transactionRouter);
+app.use("/api/quicklog", quicklogRouter);
 
 if (prod) {
     app.use(express.static(path.join(__dirname, "../client-dist")));
