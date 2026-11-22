@@ -1,6 +1,6 @@
 /**
  * DistributeTracker
- * © 2025 Puneet Gopinath. All rights reserved.
+ * © 2025-26 Puneet Gopinath. All rights reserved.
  * Filename: src/server/controllers/authC.js
  * License: MIT (see LICENSE)
  */
@@ -8,7 +8,7 @@
 import bcrypt from "bcrypt";
 import { SignJWT } from "jose";
 
-import User from "../models/User.js";
+import User from "../models/user.js";
 
 const getToken = async (id) => {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
