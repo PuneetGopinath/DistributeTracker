@@ -1,6 +1,6 @@
 /**
  * DistributeTracker
- * © 2025 Puneet Gopinath. All rights reserved.
+ * © 2025-26 Puneet Gopinath. All rights reserved.
  * Filename: src/client/components/Dashboard/EditItem.jsx
  * License: MIT (see LICENSE)
  */
@@ -33,7 +33,8 @@ export default function EditItem({ signedIn }) {
                     console.error(res);
                 }
             } catch (err) {
-                console.error("[ERROR] An error occurred while fetching item:", err);
+                console.error("[ERROR] An error occurred while fetching item:", err.response);
+                alert(`Error: ${err.response?.data?.message || err.message}. Please try again.`);
             }
         })();
 
@@ -52,7 +53,8 @@ export default function EditItem({ signedIn }) {
                 console.error(res);
             }
         } catch (err) {
-            console.error("[ERROR] An error occurred while saving edited item:", err);
+            console.error("[ERROR] An error occurred while saving edited item:", err.response);
+            alert(`Error: ${err.response?.data?.message || err.message}. Please try again.`);
         }
     };
 

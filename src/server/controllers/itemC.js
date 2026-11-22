@@ -17,8 +17,8 @@ export const getItem = async (req, res) => {
         return res.status(400).json({ message: "The parameter 'id' is not provided and is required" });
 
     const createdBy = req.user.id;
-    const item = await Item.findById(createdBy).lean();
-    if (!item || item.createdBy !== createdBy)
+    const item = await Item.findById(req.params.id).lean();
+    if (!item || item.createdBy.toString() !== createdBy)
         return res.status(404).json({ message: `Requested Item with id ${req.params.id} not found` });
 
     res.status(200).json(item);
@@ -68,8 +68,8 @@ export const editItem = async (req, res) => {
         return res.status(400).json({ message: "The parameter 'id' is not provided and is required" });
 
     const createdBy = req.user.id;
-    const item = await Item.findById(createdBy);
-    if (!item || item.createdBy !== createdBy)
+    const item = await Item.findById(req.params.id);
+    if (!item || item.createdBy.toString() !== createdBy)
         return res.status(404).json({ message: `Requested Item with id ${req.params.id} not found` });
 
     const {
