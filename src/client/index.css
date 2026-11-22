@@ -260,7 +260,7 @@ button:disabled:hover {
     width: 600px;
 }
 
-.activity li {
+li {
     padding: 0.5rem 0;
     border-bottom: 1px solid #ddd;
     display: flex;
