@@ -61,8 +61,9 @@ export const getTransaction = async (req, res) => {
         .populate("items.itemId", "name category price")
         .lean();
     
-    if (!transaction)
+    if (!transaction || transaction.loggedBy.toString() !== req.user.id)
         return res.status(404).json({ message: "Transaction with given id not found."});
+    
     res.json(transaction.items);
 };
 
@@ -71,7 +72,7 @@ export const getAllTransactions = async (req, res) => {
         return res.status(401).json({ message: unauthorizedMsg });
     }
 
-    const transactions = await Transaction.find()
+    const transactions = await Transaction.find({ loggedBy: req.user.id })
         .populate("items.itemId")
         .lean();
     if (!transactions || transactions.length === 0)
