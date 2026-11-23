@@ -43,7 +43,7 @@ export default function EditItem({ signedIn }) {
 
     const edit = async (newItem) => {
         try {
-            const res = await axios.post(`/items/edit/${itemId}`, newItem, { withCredentials: true });
+            const res = await axios.post(`/api/items/edit/${itemId}`, newItem, { withCredentials: true });
 
             if (res.status === 200) {
                 alert("Item edited successfully!");

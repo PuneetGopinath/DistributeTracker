@@ -16,8 +16,10 @@ export default function ViewLogs({ signedIn }) {
     const [ tr, setTr ] = useState(null);
     const [ localSessions, setLocalSessions ] = useState([]);
     const [ localLoaded, setLocalLoaded ] = useState(false);
+    const [ localFailed, setLocalFailed ] = useState(false);
     const [ cloudSessions, setCloudSessions ] = useState([]);
     const [ cloudFailed, setCloudFailed ] = useState(false);
+    const [ cloudAttempt, setCloudAttempt ] = useState(0);
     const [ items, setItems ] = useState([]);
     const [ sessionId, setSessionId ] = useState("");
     const [ rows, setRows ] = useState([]);
@@ -60,7 +62,9 @@ export default function ViewLogs({ signedIn }) {
                 setLocalSessions(allSessions);
                 setItems(cachedItems);
             } catch (err) {
-                console.error("[ERROR] Failed to load quick log sessions:", err);
+                // no usable storage on this device, everything comes from the cloud instead
+                console.error("[ERROR] Failed to load quick log sessions from this device:", err);
+                if (!cancelled) setLocalFailed(true);
             } finally {
                 if (!cancelled) setLocalLoaded(true);
             }
@@ -87,6 +91,16 @@ export default function ViewLogs({ signedIn }) {
         })();
 
         return () => controller.abort();
+    }, [signedIn, cloudAttempt]);
+
+    // try the cloud again when the connection comes back
+    useEffect(() => {
+        if (!signedIn) return;
+
+        const retry = () => setCloudAttempt(n => n + 1);
+        window.addEventListener("online", retry);
+
+        return () => window.removeEventListener("online", retry);
     }, [signedIn]);
 
     // one list; a session that exists in both places uses the device copy, since it has every tap
@@ -141,7 +155,9 @@ export default function ViewLogs({ signedIn }) {
             cancelled = true;
             controller.abort();
         };
-    }, [sessionId, isLocal, localLoaded, items]);
+    }, [sessionId, isLocal, localLoaded, items, cloudAttempt]);
+
+    const retry = () => setCloudAttempt(n => n + 1);
 
     const total = rows.reduce((sum, r) => sum + r.count, 0);
 
@@ -168,10 +184,21 @@ export default function ViewLogs({ signedIn }) {
         <>
             <h2 className="title">Quick Logs</h2>
 
-            {cloudFailed && <p className="error">Could not reach the cloud, showing only the sessions saved on this device.</p>}
+            {localFailed && !cloudFailed && (
+                <p className="notice">Storage is not available on this device, so only sessions saved in the cloud are shown.</p>
+            )}
+
+            {cloudFailed && (
+                <p className="error">
+                    {localFailed
+                        ? "Storage is not available on this device and the cloud could not be reached, so no quick logs can be shown."
+                        : "Could not reach the cloud, showing only the sessions saved on this device."}
+                    {" "}<button className="retry" onClick={retry}>Retry</button>
+                </p>
+            )}
 
             {sessions.length === 0 ? (
-                <p>No quick log sessions found yet.</p>
+                !(localFailed && cloudFailed) && <p>No quick log sessions found yet.</p>
             ) : (
                 <>
                     <select className="session_select" value={sessionId} onChange={e => setSessionId(e.target.value)}>
@@ -181,7 +208,9 @@ export default function ViewLogs({ signedIn }) {
                     </select>
 
                     {rowsError ? (
-                        <p className="error">{rowsError}</p>
+                        <p className="error">
+                            {rowsError}{" "}<button className="retry" onClick={retry}>Retry</button>
+                        </p>
                     ) : rows.length === 0 ? (
                         <p>Nothing was counted in this session.</p>
                     ) : (
