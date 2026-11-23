@@ -5,13 +5,12 @@
  * License: MIT (see LICENSE)
  */
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Link } from "react-router";
 
 import axios from "axios";
 
 import {
-    getDeviceId,
     getActiveSession,
     startNewSession,
     getSessionEvents,
@@ -22,6 +21,14 @@ import {
     countUnsyncedEvents,
 } from "../../helpers/indexedDB";
 import { syncQuickLog } from "../../helpers/quickLogSync";
+import {
+    RETRY_REASONS,
+    getCloudDeviceId,
+    createCloudSession,
+    getCloudActiveSession,
+    getCloudCounts,
+    sendToCloud,
+} from "../../helpers/quickLogCloud";
 
 export default function QuickLog({ signedIn }) {
     const [items, setItems] = useState([]);
@@ -29,12 +36,27 @@ export default function QuickLog({ signedIn }) {
     const [events, setEvents] = useState([]);
     const [error, setError] = useState("");
 
+    // "checking" until we know whether IndexedDB works, then "local" or "cloud"
+    const [storage, setStorage] = useState("checking");
+    const [baseCounts, setBaseCounts] = useState({});
+
     const [pending, setPending] = useState(0);
     const [syncing, setSyncing] = useState(false);
     const [syncFailed, setSyncFailed] = useState(false);
     const [online, setOnline] = useState(navigator.onLine);
 
-    const counts = useMemo(() => getCounts(events), [events]);
+    // cloud mode only: what has not reached the server yet, held in memory
+    const queueRef = useRef([]);
+    const unsentSessionsRef = useRef([]);
+    const flushingRef = useRef(false);
+
+    const counts = useMemo(() => {
+        const merged = { ...baseCounts };
+        Object.entries(getCounts(events)).forEach(([itemId, n]) => {
+            merged[itemId] = (merged[itemId] ?? 0) + n;
+        });
+        return merged;
+    }, [baseCounts, events]);
     const undone = useMemo(() => new Set(events.filter(e => e.reverses).map(e => e.reverses)), [events]);
 
     const refreshPending = useCallback(() => {
@@ -59,6 +81,46 @@ export default function QuickLog({ signedIn }) {
         }
     }, [refreshPending]);
 
+    // cloud mode: send whatever is waiting in memory
+    const flushCloud = useCallback(async () => {
+        if (flushingRef.current || !navigator.onLine) return;
+        if (queueRef.current.length === 0 && unsentSessionsRef.current.length === 0) {
+            setSyncFailed(false);
+            return;
+        }
+
+        flushingRef.current = true;
+        setSyncing(true);
+
+        try {
+            while (queueRef.current.length > 0 || unsentSessionsRef.current.length > 0) {
+                const data = await sendToCloud(unsentSessionsRef.current.slice(0, 50), queueRef.current.slice(0, 200));
+
+                // ids are UUIDs, so events and sessions can share one set
+                const finished = new Set([
+                    ...data.events,
+                    ...data.sessions,
+                    ...data.rejected.filter(r => r.id && !RETRY_REASONS.includes(r.reason)).map(r => r.id),
+                ]);
+
+                const before = queueRef.current.length + unsentSessionsRef.current.length;
+                queueRef.current = queueRef.current.filter(e => !finished.has(e._id));
+                unsentSessionsRef.current = unsentSessionsRef.current.filter(s => !finished.has(s._id));
+
+                // nothing was accepted, so stop and let the next trigger try again
+                if (queueRef.current.length + unsentSessionsRef.current.length === before) break;
+            }
+            setSyncFailed(false);
+        } catch (err) {
+            console.error("[ERROR] Sending to the cloud failed:", err);
+            setSyncFailed(true);
+        } finally {
+            flushingRef.current = false;
+            setSyncing(false);
+            setPending(queueRef.current.length);
+        }
+    }, []);
+
     // local data first, so the screen works without a network
     useEffect(() => {
         if (!signedIn) return;
@@ -75,14 +137,46 @@ export default function QuickLog({ signedIn }) {
                 setItems(prev => (prev.length > 0 ? prev : cached));
                 setSession(active);
                 setEvents(sessionEvents);
+                setStorage("local");
             } catch (err) {
-                console.error("[ERROR] Failed to load local data:", err);
-                setError("Could not open local storage. Your taps may not be saved.");
+                console.error("[ERROR] Failed to load local data, sending taps straight to the cloud:", err);
+                if (!cancelled) setStorage("cloud");
             }
         })();
 
         return () => { cancelled = true; };
     }, [signedIn]);
+
+    // cloud mode: pick up the open session from the server, or start a new one
+    useEffect(() => {
+        if (!signedIn || storage !== "cloud") return;
+        let cancelled = false;
+
+        (async () => {
+            let active = null;
+            let base = {};
+
+            try {
+                active = await getCloudActiveSession();
+                if (active) base = await getCloudCounts(active._id);
+            } catch (err) {
+                console.error("[ERROR] Could not load the open session from the cloud:", err);
+            }
+            if (cancelled) return;
+
+            if (!active) {
+                active = createCloudSession();
+                unsentSessionsRef.current.push(active);
+            }
+
+            setSession(active);
+            setBaseCounts(base);
+            setEvents([]);
+            flushCloud();
+        })();
+
+        return () => { cancelled = true; };
+    }, [signedIn, storage, flushCloud]);
 
     // then try to refresh the item list from the server
     useEffect(() => {
@@ -93,7 +187,7 @@ export default function QuickLog({ signedIn }) {
             try {
                 const res = await axios.get("/api/items", { signal: controller.signal, withCredentials: true });
                 setItems(res.data);
-                await cacheItems(res.data);
+                cacheItems(res.data).catch(err => console.warn("[WARN] Could not save the item list on this device:", err));
             } catch (err) {
                 if (!axios.isCancel(err)) console.error("[ERROR] Could not fetch items, using the saved list:", err);
             }
@@ -102,9 +196,9 @@ export default function QuickLog({ signedIn }) {
         return () => controller.abort();
     }, [signedIn]);
 
-    // sync when the page opens, when the connection comes back, and every 30 seconds
+    // local mode: sync when the page opens, when the connection comes back, and every 30 seconds
     useEffect(() => {
-        if (!signedIn) return;
+        if (!signedIn || storage !== "local") return;
 
         const goOnline = () => {
             setOnline(true);
@@ -124,21 +218,55 @@ export default function QuickLog({ signedIn }) {
             window.removeEventListener("offline", goOffline);
             clearInterval(timer);
         };
-    }, [signedIn, runSync, refreshPending]);
+    }, [signedIn, storage, runSync, refreshPending]);
 
-    // and shortly after the last tap
+    // local mode: and shortly after the last tap
     useEffect(() => {
-        if (!signedIn || events.length === 0) return;
+        if (!signedIn || storage !== "local" || events.length === 0) return;
 
         const timer = setTimeout(runSync, 2000);
         return () => clearTimeout(timer);
-    }, [events, signedIn, runSync]);
+    }, [events, signedIn, storage, runSync]);
+
+    // cloud mode: retry when the connection comes back and every 10 seconds
+    useEffect(() => {
+        if (!signedIn || storage !== "cloud") return;
+
+        const goOnline = () => {
+            setOnline(true);
+            flushCloud();
+        };
+        const goOffline = () => setOnline(false);
+
+        window.addEventListener("online", goOnline);
+        window.addEventListener("offline", goOffline);
+        const timer = setInterval(flushCloud, 10000);
+
+        return () => {
+            window.removeEventListener("online", goOnline);
+            window.removeEventListener("offline", goOffline);
+            clearInterval(timer);
+        };
+    }, [signedIn, storage, flushCloud]);
+
+    // cloud mode: unsent taps only exist in memory, so warn before the page closes
+    useEffect(() => {
+        if (storage !== "cloud" || pending === 0) return;
+
+        const warn = (e) => {
+            e.preventDefault();
+            e.returnValue = "";
+        };
+
+        window.addEventListener("beforeunload", warn);
+        return () => window.removeEventListener("beforeunload", warn);
+    }, [storage, pending]);
 
     async function logEvent(itemId, action, delta, reverses) {
         const event = {
             _id: crypto.randomUUID(),
             sessionId: session._id,
-            deviceId: getDeviceId(),
+            deviceId: getCloudDeviceId(),
             itemId,
             action,
             delta,
@@ -146,6 +274,15 @@ export default function QuickLog({ signedIn }) {
             synced: 0,
             ...(reverses && { reverses }),
         };
+
+        if (storage === "cloud") {
+            queueRef.current.push(event);
+            setEvents(prev => [...prev, event]);
+            setPending(queueRef.current.length);
+            setError("");
+            flushCloud();
+            return;
+        }
 
         try {
             await addEvent(event);
@@ -178,6 +315,22 @@ export default function QuickLog({ signedIn }) {
 
     async function newSession() {
         if (!window.confirm("End this session and start a new one?")) return;
+
+        if (storage === "cloud") {
+            const next = createCloudSession();
+            unsentSessionsRef.current = [
+                ...unsentSessionsRef.current.filter(s => s._id !== session._id),
+                { ...session, endedAt: Date.now() },
+                next,
+            ];
+
+            setSession(next);
+            setBaseCounts({});
+            setEvents([]);
+            flushCloud();
+            return;
+        }
+
         try {
             const next = await startNewSession();
             setSession(next);
@@ -221,6 +374,13 @@ export default function QuickLog({ signedIn }) {
             )}
 
             <span className="sync_status">{syncLabel}</span>
+
+            {storage === "cloud" && (
+                <p className="error">
+                    Storage is not available on this device, so taps are sent straight to the cloud.
+                    Keep this page open until the status says all synced.
+                </p>
+            )}
 
             {error && <p className="error">{error}</p>}
 
