@@ -46,5 +46,23 @@ export async function getCloudCounts(sessionId) {
 
 export async function sendToCloud(sessions, events) {
     const res = await axios.post("/api/quicklog/sync", { sessions, events }, config);
-    return res.data;
+    return checkReply(res.data);
+}
+
+// a reply that isn't the sync reply (for example an HTML page from a proxy) must count as a failure
+export function checkReply(data) {
+    if (!Array.isArray(data?.sessions) || !Array.isArray(data?.events) || !Array.isArray(data?.rejected)) {
+        throw new Error("Unexpected reply from the server");
+    }
+    return data;
+}
+
+// short text for a failed request, shown on the page so it can be read on a phone
+export function describeError(err) {
+    if (err?.response) {
+        const { status, data } = err.response;
+        const message = typeof data?.message === "string" ? data.message : "";
+        return `${status}${message ? `: ${message}` : ""}`;
+    }
+    return [err?.name, err?.message].filter(Boolean).join(": ") || "Unknown error";
 }

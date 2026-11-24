@@ -7,6 +7,8 @@
 
 import axios from "axios";
 
+import { checkReply } from "./quickLogCloud";
+
 import {
     getUnsyncedEvents,
     getUnsyncedSessions,
@@ -30,7 +32,7 @@ async function pushBatch() {
     if (events.length === 0 && sessions.length === 0) return 0;
 
     const res = await axios.post("/api/quicklog/sync", { sessions, events }, { withCredentials: true });
-    const { sessions: storedSessions, events: storedEvents, rejected } = res.data;
+    const { sessions: storedSessions, events: storedEvents, rejected } = checkReply(res.data);
 
     await markSessionsSynced(sessions.filter(s => storedSessions.includes(s._id)));
     await setEventsSyncStatus(storedEvents, 1);

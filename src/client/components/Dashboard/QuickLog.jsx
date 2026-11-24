@@ -23,6 +23,7 @@ import {
 import { syncQuickLog } from "../../helpers/quickLogSync";
 import {
     RETRY_REASONS,
+    describeError,
     getCloudDeviceId,
     createCloudSession,
     getCloudActiveSession,
@@ -43,6 +44,7 @@ export default function QuickLog({ signedIn }) {
     const [pending, setPending] = useState(0);
     const [syncing, setSyncing] = useState(false);
     const [syncFailed, setSyncFailed] = useState(false);
+    const [syncDetail, setSyncDetail] = useState("");
     const [online, setOnline] = useState(navigator.onLine);
 
     // cloud mode only: what has not reached the server yet, held in memory
@@ -72,9 +74,11 @@ export default function QuickLog({ signedIn }) {
         try {
             await syncQuickLog();
             setSyncFailed(false);
+            setSyncDetail("");
         } catch (err) {
             console.error("[ERROR] Quick log sync failed:", err);
             setSyncFailed(true);
+            setSyncDetail(describeError(err));
         } finally {
             setSyncing(false);
             refreshPending();
@@ -86,6 +90,7 @@ export default function QuickLog({ signedIn }) {
         if (flushingRef.current || !navigator.onLine) return;
         if (queueRef.current.length === 0 && unsentSessionsRef.current.length === 0) {
             setSyncFailed(false);
+            setSyncDetail("");
             return;
         }
 
@@ -111,9 +116,11 @@ export default function QuickLog({ signedIn }) {
                 if (queueRef.current.length + unsentSessionsRef.current.length === before) break;
             }
             setSyncFailed(false);
+            setSyncDetail("");
         } catch (err) {
             console.error("[ERROR] Sending to the cloud failed:", err);
             setSyncFailed(true);
+            setSyncDetail(describeError(err));
         } finally {
             flushingRef.current = false;
             setSyncing(false);
@@ -374,6 +381,8 @@ export default function QuickLog({ signedIn }) {
             )}
 
             <span className="sync_status">{syncLabel}</span>
+
+            {syncFailed && syncDetail && <p className="error">Last sync error: {syncDetail}</p>}
 
             {storage === "cloud" && (
                 <p className="error">
